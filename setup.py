@@ -6,10 +6,11 @@ import os
 
 # Define required packages.
 REQUIRED_PACKAGES = [
-        "tensorflow>=2.6.0",
-        "numpy>=1.19.5",
-        "joblib>=1.0.1",
-        "scipy>=1.7.1",
+    "tensorflow>=2.6.0",
+    "numpy>=1.19.5",
+    "pandas>=1.3.3",
+    "joblib>=1.0.1",
+    "scipy>=1.7.1",
 ]
 
 # Read in the project description.
@@ -26,7 +27,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type=
     "text/markdown",
-    #url="https://github.com/apbusia/model_based_enrichment",
+    url="https://github.com/apbusia/model_based_enrichment",
     packages=setuptools.find_packages(
     ),  # automatically finds packages in the current directory.
     classifiers=

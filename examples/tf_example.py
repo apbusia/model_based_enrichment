@@ -1,6 +1,5 @@
 import argparse
 import numpy as np
-import pandas as pd
 import tensorflow as tf
 import tensorflow.keras.backend as K
 from scipy import stats
@@ -50,23 +49,21 @@ def make_ann_classifier(input_shape, n_outputs=2, num_hid=2, hid_size=100, lr=0.
 def main(args):
     # Load sequences and counts from CSV file.
     print('\nLoading data:', args.data_file)
-    data_df = pd.read_csv(args.data_file)
-    seqs = data_df['seq'] # List of read sequences.
-    counts = np.column_stack([data_df[c] for c in args.count_columns]) # n_sequences x n_conditions array of read counts.
-    groundtruth = data_df[args.groundtruth_column].values # Groundtruth property/enrichment values for evaluation.
-    observed = np.sum(counts, axis=1) > 0
-    seqs, groundtruth, counts = seqs[observed], groundtruth[observed], counts[observed]
+    seqs, counts, groundtruth = mbe.parse_csv(args.data_file,
+                                              count_columns=args.count_columns,
+                                              groundtruth_column=args.groundtruth_column)
     
     print('\nFitting model...')
     input_shape = (len(seqs.iloc[0]) * len(mbe.AA_ORDER))
     K.clear_session()
     tf_model = make_ann_classifier(input_shape, n_outputs=len(counts), num_hid=args.n_hidden, hid_size=args.hidden_size, lr=args.learning_rate)
     mbe_model = mbe.MBETensorflowModel(tf_model, mbe.index_encode)
-    mbe_model.fit(seqs, counts, epochs=args.epochs, batch_size=args.batch_size)
+    mbe_model.fit(seqs, counts, epochs=args.epochs, batch_size=args.batch_size, n_jobs=-1)
     
     print('\nMaking predictions...')
-    observed = np.sum(counts, axis=1) > 0
-    preds = mbe_model.log_enrichment(seqs, batch_size=args.batch_size)
+    preds = mbe_model.log_enrichment(seqs, batch_size=args.batch_size, n_jobs=-1)
+    
+    print('\nComparing to ground truth fitness...')
     spearman_r = stats.spearmanr(groundtruth, preds)[0]
     print('\nSpearman={:.3f}'.format(spearman_r))
     

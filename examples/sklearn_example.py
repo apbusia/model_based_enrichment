@@ -1,6 +1,5 @@
 import argparse
 import numpy as np
-import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from scipy import stats
 from model_based_enrichment import model_based_enrichment as mbe
@@ -9,19 +8,18 @@ from model_based_enrichment import model_based_enrichment as mbe
 def main(args):
     # Load sequences and counts from CSV file.
     print('\nLoading data:', args.data_file)
-    data_df = pd.read_csv(args.data_file)
-    seqs = data_df['seq'] # List of read sequences.
-    counts = np.column_stack([data_df[c] for c in args.count_columns]) # n_sequences x n_conditions array of read counts.
-    groundtruth = data_df[args.groundtruth_column].values # Groundtruth property/enrichment values for evaluation.
-    observed = np.sum(counts, axis=1) > 0
-    seqs, groundtruth, counts = seqs[observed], groundtruth[observed], counts[observed]
+    seqs, counts, groundtruth = mbe.parse_csv(args.data_file,
+                                              count_columns=args.count_columns,
+                                              groundtruth_column=args.groundtruth_column)
     
     print('\nFitting model...')
     mbe_model = mbe.MBEModel(LogisticRegression())
-    mbe_model.fit(seqs, counts)
+    mbe_model.fit(seqs, counts, n_jobs=-1)
     
     print('\nMaking predictions...')
-    preds = mbe_model.log_enrichment(seqs)
+    preds = mbe_model.log_enrichment(seqs, n_jobs=-1)
+    
+    print('\nComparing to ground truth fitness...')
     spearman_r = stats.spearmanr(groundtruth, preds)[0]
     print('\nSpearman={:.3f}'.format(spearman_r))
     
