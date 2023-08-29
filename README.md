@@ -1,8 +1,8 @@
-# Model-based differential sequencing analysis
+# MBE: Model-based enrichment estimation and prediction for differential sequencing data
 
 This repo provides a template for implementing the model-based enrichment (MBE) approach from the paper
 
-A. Busia and J. Listgarten. Model-based differential sequencing analysis. *bioRxiv*, 2023.
+A. Busia and J. Listgarten. MBE: Model-based enrichment estimation and prediction for differential sequencing data. *Genome Biology*, 2023.
 
 using standard Python machine learning (ML) libraries.
 
